@@ -44,6 +44,7 @@ def remove_chastisements(schoolkid):
 
 
 def create_commendation(schoolkid, subject):
+    Subject.objects.get(title=subject, year_of_study=schoolkid.year_of_study)
     lessons = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
                                     group_letter=schoolkid.group_letter,
                                     subject__title=subject).order_by('?')
@@ -87,7 +88,6 @@ def main():
     if not subject:
         raise ValueError('Необходимо указать предмет')
     try:
-        Subject.objects.get(title=subject, year_of_study=schoolkid.year_of_study)
         create_commendation(schoolkid, subject)
     except Subject.ObjectDoesNotExist:
         print(f"Не найдено предмета по запросу {subject}, либо допущена опечатка")
