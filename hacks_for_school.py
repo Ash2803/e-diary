@@ -7,8 +7,31 @@ import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 django.setup()
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned
 from datacenter.models import Chastisement, Commendation, Mark, Schoolkid, Lesson, Subject
+
+COMMENDATIONS = [
+    'Молодец!',
+    'Отлично!',
+    'Ты меня приятно удивил!',
+    'Прекрасное начало!',
+    'Так держать!',
+    'Ты на верном пути!',
+    'Здорово!',
+    'Это как раз то, что нужно!',
+    'С каждым разом у тебя получается всё лучше!',
+    'Мы с тобой не зря поработали!',
+    'Я вижу, как ты стараешься!',
+    'На Девмане лучшим будешь!',
+    'Ты растешь над собой!',
+    'Ты многое сделал, я это вижу!',
+    'Теперь у тебя точно все получится!'
+    'Это просто удивительная работа!',
+    'Рожден летать!',
+    'Это на высшем уровне!',
+    'Блестяще!',
+    'Мировой стандарт!'
+]
 
 
 def fix_marks(schoolkid):
@@ -21,28 +44,6 @@ def remove_chastisements(schoolkid):
 
 
 def create_commendation(schoolkid, subject):
-    commendations = [
-        'Молодец!',
-        'Отлично!',
-        'Ты меня приятно удивил!',
-        'Прекрасное начало!',
-        'Так держать!',
-        'Ты на верном пути!',
-        'Здорово!',
-        'Это как раз то, что нужно!',
-        'С каждым разом у тебя получается всё лучше!',
-        'Мы с тобой не зря поработали!',
-        'Я вижу, как ты стараешься!',
-        'На Девмане лучшим будешь!',
-        'Ты растешь над собой!',
-        'Ты многое сделал, я это вижу!',
-        'Теперь у тебя точно все получится!'
-        'Это просто удивительная работа!',
-        'Рожден летать!',
-        'Это на высшем уровне!',
-        'Блестяще!',
-        'Мировой стандарт!'
-    ]
     lessons = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
                                     group_letter=schoolkid.group_letter,
                                     subject__title=subject).order_by('?')
@@ -55,7 +56,7 @@ def create_commendation(schoolkid, subject):
             schoolkid_commendation = None
         if not schoolkid_commendation:
             Commendation.objects.create(schoolkid=schoolkid,
-                                        text=random.choice(commendations),
+                                        text=random.choice(COMMENDATIONS),
                                         teacher=lesson.teacher,
                                         created=lesson.date,
                                         subject=lesson.subject
