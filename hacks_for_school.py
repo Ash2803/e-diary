@@ -76,10 +76,10 @@ def main():
         schoolkid = Schoolkid.objects.get(full_name__contains=schoolkid_name)
         fix_marks(schoolkid)
         remove_chastisements(schoolkid)
-    except ObjectDoesNotExist:
+    except Schoolkid.DoesNotExist:
         print(f'Ученика с именем {schoolkid_name} не существует, либо допущена опечатка')
         sys.exit(1)
-    except MultipleObjectsReturned:
+    except Schoolkid.MultipleObjectsReturned:
         print(f"По запросу {schoolkid_name} найдено несколько учеников,"
               f"уточните ФИО")
         sys.exit(1)
@@ -88,10 +88,10 @@ def main():
     try:
         Subject.objects.get(title=subject, year_of_study=schoolkid.year_of_study)
         create_commendation(schoolkid, subject)
-    except ObjectDoesNotExist:
+    except Subject.ObjectDoesNotExist:
         print(f"Не найдено предмета по запросу {subject}, либо допущена опечатка")
         sys.exit(1)
-    except MultipleObjectsReturned:
+    except Schoolkid.MultipleObjectsReturned:
         print(f"По запросу {schoolkid_name} найдено несколько учеников,"
               f"уточните ФИО")
         sys.exit(1)
