@@ -1,11 +1,9 @@
 import argparse
-import logging
 import os
 import random
 import sys
 
 import django
-
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 django.setup()
@@ -18,11 +16,11 @@ def fix_marks(schoolkid):
 
 
 def remove_chastisements(schoolkid):
-    child_warns = Chastisement.objects.filter(schoolkid__full_name__contains=schoolkid)
-    child_warns.delete()
+    schoolkid_warns = Chastisement.objects.filter(schoolkid=schoolkid)
+    schoolkid_warns.delete()
 
 
-def create_commendation(schoolkid, lessons):
+def create_commendation(schoolkid, subject):
     commendations = [
         'Молодец!',
         'Отлично!',
@@ -45,6 +43,9 @@ def create_commendation(schoolkid, lessons):
         'Блестяще!',
         'Мировой стандарт!'
     ]
+    lessons = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
+                                    group_letter=schoolkid.group_letter,
+                                    subject__title=subject).order_by('?')
     for lesson in lessons:
         try:
             schoolkid_commendation = Commendation.objects.get(schoolkid=schoolkid,
@@ -64,40 +65,36 @@ def create_commendation(schoolkid, lessons):
 
 def main():
     parser = argparse.ArgumentParser(description="Скрипт для взлома БД школы")
-    parser.add_argument("-n", "--name", default="", help="Введите ФИО или ФИ", type=str, action='store')
-    parser.add_argument("-s", "--subject", default="", help="Введите название предмета")
+    parser.add_argument("-n", "--name", default="", help="Ввести ФИО или ФИ", type=str)
+    parser.add_argument("-s", "--subject", default="", help="Ввести название предмета", type=str)
     args = parser.parse_args()
     schoolkid_name = args.name
     subject = args.subject
     if not schoolkid_name:
-        raise ValueError(' Необходимо указать имя')
+        raise ValueError('Необходимо указать имя')
     try:
         schoolkid = Schoolkid.objects.get(full_name__contains=schoolkid_name)
         fix_marks(schoolkid)
         remove_chastisements(schoolkid)
     except ObjectDoesNotExist:
         print(f'Ученика с именем {schoolkid_name} не существует, либо допущена опечатка')
-        sys.exit()
+        sys.exit(1)
     except MultipleObjectsReturned:
-        logging.error(f" По запросу {schoolkid_name} найдено несколько учеников,"
-                      f"уточните ФИО")
-        sys.exit()
+        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
+              f"уточните ФИО")
+        sys.exit(1)
     if not subject:
         raise ValueError('Необходимо указать предмет')
     try:
-        schoolkid = Schoolkid.objects.get(full_name__contains=schoolkid_name)
         Subject.objects.get(title=subject, year_of_study=schoolkid.year_of_study)
-        subjects = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
-                                         group_letter=schoolkid.group_letter,
-                                         subject__title=subject).order_by('?')
-        create_commendation(schoolkid, subjects)
+        create_commendation(schoolkid, subject)
     except ObjectDoesNotExist:
-        logging.error(f' Не найдено предмета по запросу {subject}, либо допущена опечатка')
-        sys.exit()
+        print(f"Не найдено предмета по запросу {subject}, либо допущена опечатка")
+        sys.exit(1)
     except MultipleObjectsReturned:
-        logging.error(f" По запросу {schoolkid_name} найдено несколько учеников,"
-                      f"уточните ФИО")
-        sys.exit()
+        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
+              f"уточните ФИО")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
