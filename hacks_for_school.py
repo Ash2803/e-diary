@@ -76,8 +76,7 @@ def main():
         print(f'Ученика с именем {schoolkid_name} не существует, либо допущена опечатка')
         sys.exit(1)
     except Schoolkid.MultipleObjectsReturned:
-        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
-              f"уточните ФИО")
+        print(f'''По запросу {schoolkid_name} найдено несколько учеников, уточните ФИО''')
         sys.exit(1)
     if not subject:
         raise ValueError('Необходимо указать предмет')
@@ -87,8 +86,7 @@ def main():
         print(f"Не найдено предмета по запросу {subject}, либо допущена опечатка")
         sys.exit(1)
     except Schoolkid.MultipleObjectsReturned:
-        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
-              f"уточните ФИО")
+        print(f'''По запросу {schoolkid_name} найдено несколько учеников,уточните ФИО''')
         sys.exit(1)
 
 
