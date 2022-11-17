@@ -43,10 +43,12 @@ def remove_chastisements(schoolkid):
 
 
 def create_commendation(schoolkid, subject):
-    Subject.objects.get(title=subject, year_of_study=schoolkid.year_of_study)
     lesson = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
                                    group_letter=schoolkid.group_letter,
                                    subject__title=subject).order_by('?').first()
+    if not lesson:
+        print(f"Не найдено предмета по запросу {subject}, либо допущена опечатка")
+        return
     schoolkid_commendation = Commendation.objects.filter(schoolkid=schoolkid,
                                                          subject__title=lesson.subject,
                                                          created=lesson.date).exists()
@@ -76,17 +78,16 @@ def main():
         print(f'Ученика с именем {schoolkid_name} не существует, либо допущена опечатка')
         sys.exit(1)
     except Schoolkid.MultipleObjectsReturned:
-        print(f'''По запросу {schoolkid_name} найдено несколько учеников, уточните ФИО''')
+        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
+              f"уточните ФИО")
         sys.exit(1)
     if not subject:
         raise ValueError('Необходимо указать предмет')
     try:
         create_commendation(schoolkid, subject)
-    except Subject.ObjectDoesNotExist:
-        print(f"Не найдено предмета по запросу {subject}, либо допущена опечатка")
-        sys.exit(1)
     except Schoolkid.MultipleObjectsReturned:
-        print(f'''По запросу {schoolkid_name} найдено несколько учеников,уточните ФИО''')
+        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
+              f"уточните ФИО")
         sys.exit(1)
 
 
