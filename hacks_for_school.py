@@ -7,7 +7,6 @@ import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 django.setup()
-from django.core.exceptions import MultipleObjectsReturned
 from datacenter.models import Chastisement, Commendation, Mark, Schoolkid, Lesson, Subject
 
 COMMENDATIONS = [
@@ -45,24 +44,19 @@ def remove_chastisements(schoolkid):
 
 def create_commendation(schoolkid, subject):
     Subject.objects.get(title=subject, year_of_study=schoolkid.year_of_study)
-    lessons = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
-                                    group_letter=schoolkid.group_letter,
-                                    subject__title=subject).order_by('?')
-    for lesson in lessons:
-        try:
-            schoolkid_commendation = Commendation.objects.get(schoolkid=schoolkid,
-                                                              subject__title=lesson.subject,
-                                                              created=lesson.date)
-        except django.core.exceptions.ObjectDoesNotExist:
-            schoolkid_commendation = None
-        if not schoolkid_commendation:
-            Commendation.objects.create(schoolkid=schoolkid,
-                                        text=random.choice(COMMENDATIONS),
-                                        teacher=lesson.teacher,
-                                        created=lesson.date,
-                                        subject=lesson.subject
-                                        )
-        break
+    lesson = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
+                                   group_letter=schoolkid.group_letter,
+                                   subject__title=subject).order_by('?').first()
+    schoolkid_commendation = Commendation.objects.filter(schoolkid=schoolkid,
+                                                         subject__title=lesson.subject,
+                                                         created=lesson.date).exists()
+    if not schoolkid_commendation:
+        Commendation.objects.create(schoolkid=schoolkid,
+                                    text=random.choice(COMMENDATIONS),
+                                    teacher=lesson.teacher,
+                                    created=lesson.date,
+                                    subject=lesson.subject
+                                    )
 
 
 def main():
