@@ -83,12 +83,7 @@ def main():
         sys.exit(1)
     if not subject:
         raise ValueError('Необходимо указать предмет')
-    try:
-        create_commendation(schoolkid, subject)
-    except Schoolkid.MultipleObjectsReturned:
-        print(f"По запросу {schoolkid_name} найдено несколько учеников,"
-              f"уточните ФИО")
-        sys.exit(1)
+    create_commendation(schoolkid, subject)
 
 
 if __name__ == '__main__':
